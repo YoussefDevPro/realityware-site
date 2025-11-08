@@ -2,12 +2,14 @@
 
 /* we will imrpove this, right ? */
 :root {
-  --background: #ffffff;
-  --foreground: #1e3d2f;
-  --primary: #1e3d2f;
-  --secondary: #6ecbf5;
+  --background: #6ef5f5;
+  --foreground: #037e47;
+  --primary: #04ac61;
+  --secondary: #1e3c3d;
   --neutral: #a9a9a9;
   --accent: #ff7a00;
+  --white: #ffffff;
+  --black: #000000;
 }
 
 
