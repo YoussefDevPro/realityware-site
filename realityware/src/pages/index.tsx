@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function Home() {
   return (
@@ -28,7 +27,7 @@ export default function Home() {
           <p className="text-sm mb-6 text-secondary">Psst...You can even get prizes like 3D printers, Raspberry Pis, and stickers!</p>
 
           <section className="space-y-4">
-            <a className="block px-4 py-3 rounded text-foreground text-center" href="/gallery">RSVP here!</a>
+            <a className="block px-4 py-3 rounded text-foreground text-center no-underline" href="/gallery">RSVP here!</a>
           </section>
 
           <section className="space-y-4">
