@@ -10,6 +10,8 @@
   --accent: #ff7a00;
   --white: #ffffff;
   --lightblack: #242222;
+  --gray: #cfebe840;
+  --purple: #cf5fd7;
 }
 
 
@@ -21,6 +23,8 @@
   --color-neutral: var(--neutral);
   --color-accent: var(--accent);
   --color-lightblack: var(--lightblack);
+  --color-purple: var(--purple);
+  --color-gray: var(--gray);
 }
 
 body {

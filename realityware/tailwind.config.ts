@@ -18,6 +18,8 @@ const config: Config = {
         neutral: 'var(--neutral)',
         accent: 'var(--accent)',
         lightblack: 'var(--lightblack)',
+        purple: 'var(--purple)',
+        gray: 'var(--gray)',
       },
     },
   },

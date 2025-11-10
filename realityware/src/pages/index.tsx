@@ -35,31 +35,30 @@ export default function Home() {
   
         <main className="w-full p-8 bg-accent mx-auto">
           <section className="space-y-4">
-            <p className="block px-4 py-3 text-4xl rounded text-center underline text-black">Creating and shipping your project</p>
+            {/* This can be worded better */}
+            <p className="block px-4 py-3 text-4xl rounded text-center underline text-black">Completing the YSWS</p>
           </section>
           <section className="space-y-4 gap-[10vw] flex mt-[10vh]">
-            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-background rounded-lg shadow-lg border-[2vw] rounded text-center text-lightblack text-lg">Step 1: Come up with an idea! <span className="block mt-4 text-sm text-justify">It can be anything, as well as a solution can be built for it! The better your idea is to help society, the better reward you will get!</span></p>
+            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-secondary rounded-lg shadow-lg border-[2vw] rounded text-center text-lightblack text-lg">Step 1: Come up with an idea! <span className="block mt-4 text-sm text-justify">It can be anything, as well as a solution can be built for it! The better your idea is to help society, the better reward you will get!</span></p>
+
             <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-foreground rounded-lg shadow-lg border-[2vw] rounded text-lightblack text-center text-lg">Step 2: Build your project! <span className="block mt-4 text-sm text-justify">Design your project! Plan it out, make a CAD, and design the schematic! Then, create the code that your project would run on, and put it on GitHub!</span></p>
-            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-primary rounded-lg shadow-lg border-[2vw] rounded text-lightblack text-center">Step 3: Create your BOM! <span className="block mt-4 text-sm text-justify">Simply list out all the components and materials you will need to create your project. We will use this BOM to give you an appropriate grant!</span></p>
+            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-primary rounded-lg shadow-lg border-[2vw] rounded text-lightblack text-center text-lg">Step 3: Create your BOM! <span className="block mt-4 text-sm text-justify">Simply list out all the components and materials you will need to create your project. We will use this BOM to give you an appropriate grant!</span></p>
           </section>
-          <section className="space-y-4 gap-[10vw] flex mt-[10vh] justify-center items-center">
-            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-neutral border-4 rounded text-foreground">Optional: Create a PCB layout for your project!</p>
-            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-neutral border-4 rounded text-foreground">Step 4: Submit!</p>
+          <section className="space-y-4 gap-[10vw] flex mt-[15vh] justify-center items-center">
+            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-blue-900 border-[2vw] rounded-lg shadow-lg rounded text-lightblack text-center text-lg">Optional: Create a PCB layout for your project! <span className="block mt-4 text-sm text-justify">For a chance at bigger rewards, create a PCB design for your project! This will become a part of your grant.</span></p>
+            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-purple border-[2vw] rounded-lg shadow-lg rounded text-lightblack text-center text-lg">Step 4: Ship it! <span className="block mt-4 text-sm text-justify">Once you're finished, ship it to us! We'll rate your project and give you a grant to build it.</span></p>
           </section>
-          <section className="space-y-4">
-            <p className="w-64 h-64 px-4 py-3 border border-neutral border-4 rounded text-foreground">Step 5: Use your grant to build your project and win even more prizes!</p>
+          <section className="space-y-4 gap-[10vw] flex mt-[15vh] justify-center items-center">
+            <p className="inline-block w-[25vw] h-64 px-4 py-3 border border-background border-[2vw] rounded-lg shadow-lg rounded text-lightblack text-center text-lg">Step 5: Use your grant to build your project!<span className="block mt-4 text-sm text-justify">The project isn't finished until it's up and working! You can win even more prizes by doing so!</span></p>
           </section>
-          <section className="space-y-4">
-            <a href="/faq" className="block px-4 py-3 rounded text-center">Read our FAQ here!</a>
+          <section className="flex items-center justify-center mt-[20vh]">
+            <a className="block rounded w-[22vw] h-16 px-4 py-3 rounded text-center bg-purple text-white rounded-full justify-center flex items-center" href="https://hackclub.slack.com/docs/T0266FRGM/F09S78K5M1P">To learn more, read our FAQ here!</a>
           </section>
         </main>
 
-        <footer className="bg-neutral max-w-3xl w-full mx-auto">
+        <footer className="bg-neutral w-full p-8 mx-auto items-center justify-center flex">
           <section className="space-y-4">
-            <p className="block px-4 py-3 bg-background rounded text-foreground">Built with love by members of Hack Club!</p>
-          </section>
-          <section className="space-y-4">
-            <p className="block px-4 py-3 bg-background rounded text-foreground">Check out our Github and join our Slack!</p>
+            <p className="block px-4 py-3 rounded text-foreground">Built with love by members of <a href="https://hackclub.com/" className="text-blue-900 underline">Hack Club</a>! View this website's <a href="https://github.com/Drummingcoder/realityware-site" className="text-blue-900 underline">source code</a> and join our <a href="https://hackclub.com/slack/" className="text-blue-900 underline">Slack!</a></p>
           </section>
         </footer>
       </div>
