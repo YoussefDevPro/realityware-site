@@ -22,6 +22,8 @@ const config: Config = {
         gray: 'var(--gray)',
         lightaccent: 'var(--lightaccent)',
         red: 'var(--red)',
+        textlight: 'var(--text-light)',
+        lightblue: 'var(--lightblue)',
       },
     },
   },
