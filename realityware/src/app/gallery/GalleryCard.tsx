@@ -72,7 +72,7 @@ export default function GalleryCard({ item }: GalleryCardProps) {
               <div className="flex w-1/2">
                 <a href={item.pageUrl} className="flex items-center justify-center gap-2 px-4 py-3 text-white hover:bg-neutral/10 transition-colors flex-1 border border-neutral border-r-0 rounded-tl-3xl border-b-0">
                   <ExternalLinkIcon className="w-4 h-4" />
-                  View Page
+                  View 
                 </a>
                 <a href={item.repoUrl} className="flex items-center justify-center gap-2 px-4 py-3 text-white hover:bg-neutral/10 transition-colors flex-1 border border-neutral border-b-0 border-r-0">
                   <GitHubIcon className="w-4 h-4" />
