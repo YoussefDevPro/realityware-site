@@ -1,0 +1,22 @@
+[debug]
+port = 8080
+template_reload = true  
+secret_key = "30afa374032be1973f7db7afc4d6c252efb1f9694a99eb8c5c6c4590b1eb37a9"
+
+[release]
+secret_key = "30afa374032be1973f7db7afc4d6c252efb1f9694a99eb8c5c6c4590b1eb37a9"
+
+[default.databases.postgres]
+url = "postgresql://postgres:postgres@localhost:5433/dev"
+pool_size = 10
+
+
+[default.oauth.hca]
+client_id = "eb3507bb1893f98b5d9d2d11a0114da5"
+client_secret = "ae1a8de86ada5203787a66fdb548fd4005b5f5afdd8b79c3fe22aeb4d67e3707"
+redirect_uri = "http://localhost:8080/oauth/callback"
+auth_uri = "https://auth.hackclub.com/oauth/authorize"
+token_uri = "https://auth.hackclub.com/oauth/token"
+
+
+
