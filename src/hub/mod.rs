@@ -1,5 +1,5 @@
-use crate::db::schema::users::dsl::*;
 use crate::db::DbConn;
+use crate::db::schema::users::dsl::*;
 use crate::prelude::*;
 use diesel::prelude::*;
 use rocket::http::Status;
@@ -9,6 +9,8 @@ use uuid::Uuid;
 pub async fn hub(cookies: &CookieJar<'_>, conn: DbConn) -> Result<Template, Status> {
     // Get user id from signed cookie first
     println!("HUB START");
+    dbg!(&cookies);
+    dbg!(&cookies.get_private("auth"));
     let user_id: Uuid = cookies
         .get_private("auth")
         .and_then(|c| Uuid::parse_str(c.value()).ok())
@@ -22,6 +24,7 @@ pub async fn hub(cookies: &CookieJar<'_>, conn: DbConn) -> Result<Template, Stat
             .filter(id.eq(user_id))
             .select((username, tickets))
             .first::<(String, i32)>(c); // explicitly specify type
+        dbg!(&result);
 
         match result {
             Ok((username_val, tickets_val)) => Ok(Template::render(

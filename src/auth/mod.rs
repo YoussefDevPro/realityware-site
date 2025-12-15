@@ -1,7 +1,6 @@
 use crate::db::DbConn;
-use crate::db::{self, prelude::*};
+use crate::db::prelude::*;
 
-use rocket::http::SameSite;
 mod models;
 use chrono::Utc;
 use uuid::Uuid;
@@ -35,7 +34,7 @@ pub fn slack_login(oauth2: OAuth2<HCA>, cookies: &CookieJar<'_>) -> Redirect {
         .unwrap()
 }
 
-pub async fn get_token(code: String) -> String {
+pub async fn get_token(code: String) -> Result<String, Status> {
     let client = reqwest::Client::new();
     // TODO: use dotenv to get client id and secret
     let res = client
@@ -54,8 +53,11 @@ pub async fn get_token(code: String) -> String {
         .await
         .map_err(|_| rocket::http::Status::InternalServerError)
         .unwrap();
-    let token = res.json::<Token>().await.unwrap();
-    token.access_token
+    let token = res.json::<Token>().await;
+    match token {
+        Ok(v) => Ok(v.access_token),
+        Err(_) => Err(rocket::http::Status::Unauthorized),
+    }
 }
 
 #[get("/oauth/callback?<query..>")]
@@ -64,53 +66,62 @@ pub async fn callback(
     cookies: &CookieJar<'_>,
     db: DbConn,
 ) -> Result<Redirect, Status> {
-    // Get OAuth token
-    let token = get_token(query).await;
+    let token = match get_token(query).await {
+        Ok(t) => t,
+        Err(e) => {
+            if cfg!(debug_assertions) {
+                eprintln!("oauth: get_token failed: {:#?}", e);
+            }
+            return Err(Status::InternalServerError);
+        }
+    };
 
-    // Store the token in a private cookie
     cookies.add_private(
         Cookie::build(("token", token.clone()))
-            .secure(true)
-            .http_only(true),
+            .secure(cfg!(not(debug_assertions)))
+            .http_only(true)
+            .path("/"),
     );
 
-    // Fetch the user info from Hack Club API
     let client = reqwest::Client::new();
-    let res: ApiResponse = match client
+    let api_resp: ApiResponse = client
         .get("https://auth.hackclub.com/api/v1/me")
         .bearer_auth(&token)
         .send()
         .await
         .map_err(|e| {
-            dbg!("Failed to send request to Hack Club API:", &e);
+            if cfg!(debug_assertions) {
+                eprintln!("oauth: failed to send request to Hack Club API: {:#?}", e);
+            }
             Status::InternalServerError
         })?
         .json()
         .await
-    {
-        Ok(resp) => resp,
-        Err(e) => {
-            dbg!("Failed to parse API response:", &e);
-            return Err(Status::InternalServerError);
-        }
-    };
+        .map_err(|e| {
+            if cfg!(debug_assertions) {
+                eprintln!("oauth: failed to parse API response: {:#?}", e);
+            }
+            Status::InternalServerError
+        })?;
 
-    let identity = res.identity;
+    let identity = api_resp.identity;
 
-    // Check eligibility
     if !identity.ysws_eligible {
-        dbg!("User is not YSWS eligible: {}", identity.primary_email);
+        if cfg!(debug_assertions) {
+            eprintln!("oauth: user not YSWS eligible: {}", identity.primary_email);
+        }
         return Ok(Redirect::to(uri!("/?error=ineligible")));
     }
 
-    // Check verification status
     match identity.verification_status.as_deref().unwrap_or("NONE") {
-        "verified" => {}
+        "verified" => { /* ok */ }
         "needs_submission" => return Ok(Redirect::to(uri!("/?error=needssubmission"))),
         "pending" => return Ok(Redirect::to(uri!("/?error=pendingverification"))),
         "ineligible" => return Ok(Redirect::to(uri!("/?error=ineligible"))),
         other => {
-            dbg!("Unexpected verification status:", other);
+            if cfg!(debug_assertions) {
+                eprintln!("oauth: unexpected verification status: {}", other);
+            }
             return Ok(Redirect::to(uri!("/?error=unknownverification")));
         }
     };
@@ -118,29 +129,29 @@ pub async fn callback(
     let primary_email = identity.primary_email;
     let first_name = identity.first_name;
     let last_name = identity.last_name;
-    let identity_id = identity.id;
 
+    let user_id = Uuid::new_v4();
+
+    let email_for_db = primary_email.clone();
     let user_exists = match db
-        .run({
-            let email_for_db = primary_email.clone();
-            move |conn| {
-                users
-                    .filter(email.eq(&email_for_db))
-                    .select(id)
-                    .first::<uuid::Uuid>(conn)
-                    .optional()
-            }
+        .run(move |conn| {
+            users
+                .filter(email.eq(&email_for_db))
+                .select(id)
+                .first::<uuid::Uuid>(conn)
+                .optional()
         })
         .await
     {
         Ok(opt) => opt.is_some(),
         Err(e) => {
-            dbg!("Database query failed:", &e);
+            if cfg!(debug_assertions) {
+                eprintln!("db: failed to query user existence: {:#?}", e);
+            }
             return Err(Status::InternalServerError);
         }
     };
 
-    // Insert new user if not exists
     if !user_exists {
         let new_username = first_name.clone().unwrap_or_else(|| {
             primary_email
@@ -150,16 +161,16 @@ pub async fn callback(
                 .to_string()
         });
 
-        let new_name = match (first_name.clone(), last_name) {
-            (Some(first), Some(last)) => Some(format!("{} {}", first, last)),
-            (Some(first), None) => Some(first),
+        let new_name = match (first_name.clone(), last_name.clone()) {
+            (Some(f), Some(l)) => Some(format!("{} {}", f, l)),
+            (Some(f), None) => Some(f),
             _ => None,
         };
 
         let new_user = NewUser {
-            id: Uuid::new_v4(),
+            id: user_id,
             username: new_username,
-            email: primary_email.clone(), // move it here
+            email: primary_email.clone(),
             name: new_name,
             tickets: Some(6769),
             avatar_url: None,
@@ -170,12 +181,13 @@ pub async fn callback(
             .run(move |conn| diesel::insert_into(users).values(new_user).execute(conn))
             .await
         {
-            dbg!("Failed to insert new user:", &e);
+            if cfg!(debug_assertions) {
+                eprintln!("db: failed to insert new user: {:#?}", e);
+            }
             return Err(Status::InternalServerError);
         }
     }
 
-    // Set username cookie
     let username_cookie = first_name.unwrap_or_else(|| {
         primary_email
             .split('@')
@@ -187,11 +199,15 @@ pub async fn callback(
     cookies.add(
         Cookie::build(("username", username_cookie))
             .path("/")
-            .secure(true),
+            .secure(cfg!(not(debug_assertions))),
     );
 
-    // Set auth cookie
-    cookies.add_private(Cookie::build(("auth", identity_id.to_string())).http_only(true));
+    cookies.add_private(
+        Cookie::build(("auth", user_id.to_string()))
+            .http_only(true)
+            .path("/")
+            .secure(cfg!(not(debug_assertions))),
+    );
 
     Ok(Redirect::to(uri!("/hub")))
 }
